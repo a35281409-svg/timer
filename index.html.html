@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주황색 물음표 6분 아날로그 타이머 - 청춘과 질문의 기록</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Playfair+Display:ital,wght@0,600;1,400&display=swap');
+        
+        body {
+            font-family: 'Gowun Dodum', sans-serif;
+            background: linear-gradient(135deg, #16100c 0%, #291508 100%);
+            color: #f3f4f6;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 주황색 물음표 형태의 본체 디자인 */
+        .question-body {
+            background: linear-gradient(145deg, #ff7e33, #d84315);
+            box-shadow: 0 25px 50px rgba(230, 81, 0, 0.4), inset 0 3px 10px rgba(255, 255, 255, 0.4);
+            border-radius: 110px 110px 45px 45px;
+        }
+
+        .question-dot {
+            background: linear-gradient(145deg, #ffa777, #bf360c);
+            box-shadow: 0 10px 25px rgba(191, 54, 12, 0.7);
+        }
+
+        @keyframes orangeHorizonGlow {
+            0% { background-color: rgba(255, 126, 51, 0.1); border-color: rgba(255, 126, 51, 0.3); }
+            50% { background-color: rgba(255, 126, 51, 0.3); border-color: rgba(255, 126, 51, 0.8); }
+            100% { background-color: rgba(255, 126, 51, 0.1); border-color: rgba(255, 126, 51, 0.3); }
+        }
+
+        .glow-active {
+            animation: orangeHorizonGlow 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4 min-h-screen">
+
+    <div id="main-container" class="max-w-xl w-full bg-[#1b110b]/95 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-[#ff7e33]/40 shadow-2xl relative transition-all duration-1000">
+        
+        <!-- 상단 타이틀 -->
+        <div class="text-center mb-4">
+            <span class="text-xs uppercase tracking-widest text-[#ff9e66] font-semibold">청춘과 질문의 기록 &bull; 6분 아날로그 타이머</span>
+            <h1 class="text-xl md:text-2xl font-bold mt-1 text-[#ffb787]">주황색 물음표 6분 아날로그 타이머</h1>
+        </div>
+
+        <!-- 5가지 PRD 컨셉 네비게이션 탭 -->
+        <div class="grid grid-cols-5 gap-1 mb-6 text-center text-[10px] md:text-xs">
+            <button onclick="switchConcept(1)" id="tab-1" class="p-2 rounded-lg bg-orange-600/30 border border-orange-500/50 text-orange-200 font-bold transition">1.직접입력</button>
+            <button onclick="switchConcept(2)" id="tab-2" class="p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-orange-200 transition">2.알람/질문</button>
+            <button onclick="switchConcept(3)" id="tab-3" class="p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-orange-200 transition">3.오렌지빛</button>
+            <button onclick="switchConcept(4)" id="tab-4" class="p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-orange-200 transition">4.음악/사랑</button>
+            <button onclick="switchConcept(5)" id="tab-5" class="p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-orange-200 transition">5.물음표성찰</button>
+        </div>
+
+        <!-- 타이머 디스플레이 (6분 물음표 형태) -->
+        <div class="relative flex flex-col items-center justify-center my-4">
+            <div class="question-body w-68 h-68 md:w-76 md:h-76 flex flex-col items-center justify-center relative p-6 text-white transition-transform duration-500 hover:scale-[1.01]">
+                <div class="absolute top-4 left-6 text-[11px] text-white/90 font-medium flex items-center gap-1">
+                    <span>⏱️</span> 6분 아날로그 타이머
+                </div>
+                
+                <div class="text-center mt-2">
+                    <div id="timer-display" class="text-5xl md:text-6xl font-extrabold tracking-wider serif-font text-white drop-shadow-lg">06:00</div>
+                    <div id="status-text" class="text-xs mt-2 text-orange-100 tracking-wide font-medium">태엽을 감고 내면의 목소리에 집중하세요</div>
+                </div>
+
+                <div class="absolute bottom-4 right-5 text-[10px] bg-black/30 px-2 py-1 rounded-md text-orange-200 border border-orange-400/30">
+                    🎵 빠른 템포 메이저 모던 &bull; 어쿠스틱 기타 & 건반 위주
+                </div>
+            </div>
+
+            <!-- 하단 점 버튼 (시작/일시정지 토글) -->
+            <div onclick="toggleTimer()" class="question-dot w-32 h-12 mt-4 rounded-2xl flex items-center justify-center text-white text-xs font-extrabold shadow-lg cursor-pointer hover:scale-105 active:scale-95 transition">
+                <span id="toggle-btn-text">시작하기</span>
+            </div>
+        </div>
+
+        <!-- PRD 원문 및 5가지 의미 출력 영역 -->
+        <div class="bg-black/50 rounded-2xl p-4 min-h-[140px] border border-orange-500/30 flex flex-col justify-center text-center shadow-inner mt-4">
+            <div id="concept-title" class="text-xs text-orange-400 font-bold mb-1">1. 직접 입력 (Direct Input Mode)</div>
+            <div id="concept-function" class="text-[11px] text-orange-200/90 mb-1 font-medium">기능 정의: 사용자가 타이머의 목표 시간과 질문을 직접 설정하는 아날로그 감성의 입력 방식입니다.</div>
+            <p id="concept-meaning" class="text-xs md:text-sm text-orange-100/95 leading-relaxed font-light">
+                "단순히 정해진 시간을 쪼개 쓰는 도구가 아니라, 오늘 하루 내가 마주할 '고민의 크기'를 스스로 정의하는 행위입니다. 태엽을 감듯 직접 다이얼을 돌리며 내면의 목소리에 집중하는 시작점입니다."
+            </p>
+        </div>
+
+        <!-- 하단 컨트롤 버튼 그룹 -->
+        <div class="flex gap-3 mt-6">
+            <button onclick="resetTimer()" class="flex-1 bg-neutral-800 hover:bg-neutral-700 text-orange-300 py-3 rounded-xl text-xs md:text-sm font-semibold transition border border-orange-500/20">
+                처음으로
+            </button>
+            <button onclick="skipToEnd()" class="flex-1 bg-gradient-to-r from-[#ff7e33] to-[#d84315] hover:opacity-90 text-white py-3 rounded-xl text-xs md:text-sm font-semibold shadow-lg shadow-orange-900/40 transition">
+                6분 종료 체험
+            </button>
+        </div>
+    </div>
+
+    <!-- 크레딧 -->
+    <footer class="mt-6 text-xs text-orange-400/50 text-center">
+        Gemini PRD &bull; Orange Question Analog Timer (Bright Fast Major Tempo & Acoustic/Keys Focus)
+    </footer>
+
+    <script>
+        let totalSeconds = 6 * 60; // 6분
+        let remainingSeconds = totalSeconds;
+        let timerInterval = null;
+        let isRunning = false;
+
+        const timerDisplay = document.getElementById('timer-display');
+        const statusText = document.getElementById('status-text');
+        const toggleBtnText = document.getElementById('toggle-btn-text');
+        const conceptTitle = document.getElementById('concept-title');
+        const conceptFunction = document.getElementById('concept-function');
+        const conceptMeaning = document.getElementById('concept-meaning');
+        const mainContainer = document.getElementById('main-container');
+
+        const prdData = {
+            1: {
+                title: "1. 직접 입력 (Direct Input Mode)",
+                func: "기능 정의: 사용자가 타이머의 목표 시간과 질문을 직접 설정하는 아날로그 감성의 입력 방식입니다.",
+                meaning: "\"단순히 정해진 시간을 쪼개 쓰는 도구가 아니라, 오늘 하루 내가 마주할 '고민의 크기'를 스스로 정의하는 행위입니다. 태엽을 감듯 직접 다이얼을 돌리며 내면의 목소리에 집중하는 시작점입니다.\"",
+                sec: 360
+            },
+            2: {
+                title: "2. 알람 소리와 질문의 출현 (The Melody & Awakening)",
+                func: "기능 정의: 타이머가 울릴 때 알람 소리와 함께 화면에 \"나는 이 음악 속에서 어떤 삶을 사나\"라는 문구가 나타납니다.",
+                meaning: "\"음악의 끝은 단순한 단절이나 종료가 아닙니다. 곡이 멈춘 그 찰나의 적막 속에서, 내가 지나온 시간과 앞으로 살아갈 삶의 궤적을 돌아보게 만드는 문학적 장치입니다.\"",
+                sec: 300
+            },
+            3: {
+                title: "3. 오렌지빛 배경과 만남 (The Orange Horizon & Encounter)",
+                func: "기능 정의: 타이머가 작동하는 동안 따뜻한 주황빛 배경 그라데이션이 화면을 물들이며, \"이 배경 속에서 난 어떤 사람을 만나는가?\"라는 상상을 자극합니다.",
+                meaning: "\"노을빛처럼 물들어가는 오렌지색은 청춘의 체온을 상징합니다. 시간 속에서 스쳐 지나가는 인연들과 그로 인해 내 삶이 물들어가는 과정을 시각적으로 표현하여 감성적인 깊이를 더합니다.\"",
+                sec: 180
+            },
+            4: {
+                title: "4. 핵심 기능 속 음악과 사랑 (Core Function & Nostalgia)",
+                func: "기능 정의: 카운트다운을 수행하는 동안, 빠른 템포의 밝은 메이저 코드(C - G - Am - F) 기반 어쿠스틱 기타와 건반(키보드) 중심의 모던 스타일 음악이 흘러나옵니다.",
+                meaning: "\"우리가 무언가에 몰두하고 시간을 태우는 모든 순간은 결국 사랑하고 방황하던 청춘의 조각입니다. 기능적 완결성을 넘어 감정적 동조를 느낄 수 있는 핵심 서사 기능입니다.\"",
+                sec: 60
+            },
+            5: {
+                title: "5. 물음표의 본질과 자아 성찰 (The Orange Question & Self-Reflection)",
+                func: "기능 정의: 주황색 물음표 아날로그 형태 속에서 \"물음표는 세상의 거창한 도전이 아닌, 음악의 본질이자 나에게 어떤 꿈이 있는지 알고 있으며 난 이 삶에 만족하고 살고 있는가?\"라는 질문을 던집니다.",
+                meaning: "\"이 타이머의 존재 이유입니다. 타이머가 가리키는 시각은 단순한 숫자가 아니라, '지금의 내 삶에 진정으로 만족하며 꿈을 향해 가고 있는가?'라는 청춘을 향한 다정한 물음표입니다.\"",
+                sec: 0
+            }
+        };
+
+        let audioCtx = null;
+        let musicTimer = null;
+        let beatStepCount = 0;
+
+        // 밝고 경쾌한 모던 메이저 코드 진행 (C - G - Am - F) - 빠르고 세련된 팝/모던 스타일
+        const brightMajorProgression = [
+            [261.63, 329.63, 392.00], // C major (C, E, G)
+            [196.00, 246.94, 293.66], // G major (G, B, D)
+            [220.00, 261.63, 329.63], // A minor (A, C, E)
+            [174.61, 220.00, 261.63]  // F major (F, A, C)
+        ];
+
+        // 밝고 신나는 모던 건반 아르페지오 및 멜로디 노트
+        const brightMelodyNotes = [523.25, 587.33, 659.25, 783.99, 880.00, 783.99, 659.25, 587.33];
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function startMusicLoop() {
+            initAudio();
+            if (musicTimer) clearInterval(musicTimer);
+            
+            // 빠른 템포 (320ms 간격으로 경쾌하고 모던한 리듬 구현)
+            musicTimer = setInterval(() => {
+                if (!isRunning || !audioCtx) return;
+
+                const chord = brightMajorProgression[Math.floor(beatStepCount / 4) % brightMajorProgression.length];
+
+                // 1. 어쿠스틱 기타 스트럼/아르페지오 (밝은 트라이앵글 톤 활용)
+                playAcousticStrum(chord[beatStepCount % chord.length]);
+                if (beatStepCount % 2 === 0) {
+                    playAcousticStrum(chord[(beatStepCount + 1) % chord.length] * 1.5);
+                }
+
+                // 2. 모던 건반 (일렉트릭 피아노/신스 사운드 - 따뜻한 사인파와 부드러운 저역 조화)
+                playKeyboardChord(chord[0]);
+                if (beatStepCount % 2 === 0) {
+                    playKeyboardMelody(brightMelodyNotes[(beatStepCount / 2) % brightMelodyNotes.length]);
+                }
+
+                // 3. 경쾌한 리듬 퍼커션 (가벼운 하이햇/클릭)
+                if (beatStepCount % 2 === 0) {
+                    playLightClick();
+                }
+
+                beatStepCount++;
+            }, 320); 
+        }
+
+        function stopMusicLoop() {
+            if (musicTimer) {
+                clearInterval(musicTimer);
+                musicTimer = null;
+            }
+        }
+
+        function playAcousticStrum(freq) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle'; // 어쿠스틱 기타 특유의 부드럽고 명랑한 결
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        function playKeyboardChord(freq) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = 'sine'; // 기계음을 없애고 건반의 울림을 주는 사인파
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.7);
+            } catch(e) {}
+        }
+
+        function playKeyboardMelody(freq) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.6);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.6);
+            } catch(e) {}
+        }
+
+        function playLightClick() {
+            try {
+                const bufferSize = audioCtx.sampleRate * 0.03;
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.3;
+                }
+                const noise = audioCtx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(5000, audioCtx.currentTime);
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.03);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+                noise.start();
+                noise.stop(audioCtx.currentTime + 0.03);
+            } catch(e) {}
+        }
+
+        function switchConcept(conceptNum) {
+            for (let i = 1; i <= 5; i++) {
+                const btn = document.getElementById(`tab-${i}`);
+                if (i === conceptNum) {
+                    btn.className = "p-2 rounded-lg bg-orange-600/30 border border-orange-500/50 text-orange-200 font-bold transition";
+                } else {
+                    btn.className = "p-2 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-400 hover:text-orange-200 transition";
+                }
+            }
+
+            const data = prdData[conceptNum];
+            conceptTitle.innerText = data.title;
+            conceptFunction.innerText = data.func;
+            conceptMeaning.innerText = data.meaning;
+
+            if (!isRunning) {
+                remainingSeconds = data.sec;
+                timerDisplay.innerText = formatTime(remainingSeconds);
+                if(conceptNum === 5) {
+                    statusText.innerText = "질문이 완성되었습니다";
+                    mainContainer.classList.add('glow-active');
+                } else {
+                    statusText.innerText = "PRD 모드 선택됨: 태엽을 감아보세요";
+                    mainContainer.classList.remove('glow-active');
+                }
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function toggleTimer() {
+            if (!isRunning) {
+                startTimer();
+            } else {
+                pauseTimer();
+            }
+        }
+
+        function startTimer() {
+            if (remainingSeconds <= 0) remainingSeconds = 6 * 60;
+            isRunning = true;
+            toggleBtnText.innerText = "일시정지";
+            statusText.innerText = "오렌지빛 배경 속에서 시간을 태우는 중...";
+            mainContainer.classList.add('glow-active');
+
+            startMusicLoop();
+
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    timerDisplay.innerText = formatTime(remainingSeconds);
+                    
+                    if (remainingSeconds === 300) switchConcept(2);
+                    else if (remainingSeconds === 180) switchConcept(3);
+                    else if (remainingSeconds === 60) switchConcept(4);
+                    else if (remainingSeconds === 0) switchConcept(5);
+
+                } else {
+                    clearInterval(timerInterval);
+                    stopMusicLoop();
+                    isRunning = false;
+                    toggleBtnText.innerText = "다시 시작";
+                    statusText.innerText = "시간 종료: 질문이 완성되었습니다";
+                    switchConcept(5);
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            stopMusicLoop();
+            toggleBtnText.innerText = "이어하기";
+            statusText.innerText = "잠시 멈춰 선 생각의 시간";
+            mainContainer.classList.remove('glow-active');
+        }
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            stopMusicLoop();
+            switchConcept(1);
+            toggleBtnText.innerText = "시작하기";
+            statusText.innerText = "태엽을 감고 내면의 목소리에 집중하세요";
+        }
+
+        function skipToEnd() {
+            isRunning = false;
+            clearInterval(timerInterval);
+            stopMusicLoop();
+            remainingSeconds = 0;
+            timerDisplay.innerText = formatTime(0);
+            toggleBtnText.innerText = "다시 시작";
+            statusText.innerText = "알람 소리와 함께 질문이 나타났습니다";
+            switchConcept(5);
+        }
+    </script>
+</body>
+</html>
